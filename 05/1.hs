@@ -6,7 +6,7 @@ main = do
     putStrLn $ show result
 
 run :: [String] -> Int
-run xs = maximum $ map seatId $ positions xs wher
+run xs = maximum $ map seatId $ positions xs where
     seatId (r,c) = 8 * r + c
 
 positions :: [String] -> [(Int,Int)]
