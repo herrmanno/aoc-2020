@@ -12,4 +12,4 @@ run n k xs = go 0 0 (head xs) where
     go a b s = case s `compare` n of
                     LT -> go a (b+1) (s + (xs !! (b+1)))
                     GT -> go (a+1) b (s - (xs !! a))
-                    otherwise -> minimum (map (xs !!) [a..b]) + maximum (map (xs !!) [a..b])
+                    otherwise -> let ys = map (xs !!) [a..b] in minimum ys + maximum ys
