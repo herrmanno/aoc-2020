@@ -10,9 +10,11 @@ main = do
     print result
 
 run xs = let xs' = sort ((-3):0:(maximum xs + 3):(maximum xs + 6):xs)
-             diffs = zipWith subtract xs' (tail xs')
-             zs = zip xs' diffs
+             zs = zip xs' (diffs xs')
           in product $ map combCount $ toRanges zs
+
+diffs :: Num a => [a] -> [a]
+diffs xs = zipWith subtract xs (tail xs)
 
 toRanges :: [(Int,Int)] -> [Range]
 toRanges = unfoldr f where
@@ -33,4 +35,4 @@ combs [] = [[]]
 combs (x:xs) = map (x:) (combs xs) ++ combs xs
 
 valid :: Range -> Bool
-valid xs = all (<4) $ zipWith subtract xs (tail xs)
+valid = all (<4) . diffs
