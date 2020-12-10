@@ -1,3 +1,5 @@
+{-# LANGUAGE ViewPatterns #-}
+
 import Data.List (unfoldr, sort,nub)
 
 type Range = [Int] -- Lower Bound, Variables, Upper Bound
@@ -18,7 +20,7 @@ toRanges = unfoldr f where
             in if null xs' then Nothing else Just (map fst (x++[head xs']), xs')
 
 combCount :: Range -> Int
-combCount xs = length $ filter valid (combinations xs)
+combCount = length . filter valid . combinations
 
 combinations :: Range -> [[Int]]
 combinations xs = nub [l:var'++[h] | var' <- combs var ++ [[]]] where
@@ -31,5 +33,4 @@ combs [] = [[]]
 combs (x:xs) = map (x:) (combs xs) ++ combs xs
 
 valid :: Range -> Bool
-valid xs = let diffs = sort $ zipWith subtract xs (tail xs)
-           in all (<4) diffs
+valid xs = all (<4) $ zipWith subtract xs (tail xs)
