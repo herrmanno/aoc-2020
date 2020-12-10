@@ -1,5 +1,3 @@
-{-# LANGUAGE ViewPatterns #-}
-
 import Data.List (unfoldr, sort,nub)
 
 type Range = [Int] -- Lower Bound, Variables, Upper Bound
@@ -9,7 +7,7 @@ main = do
     let result = run input
     print result
 
-run xs = let xs' = sort ((-3):0:(maximum xs + 3):(maximum xs + 6):xs)
+run xs = let xs' = sort (0:(maximum xs + 3):xs)
              zs = zip xs' (diffs xs')
           in product $ map combCount $ toRanges zs
 
