@@ -1,26 +1,37 @@
-import Data.IntMap ( IntMap )
-import qualified Data.IntMap as IM
-import Control.Monad.State ( evalState, MonadState(put, get), State )
-import Data.Maybe ( fromMaybe )
+import Control.Monad.ST ( runST, ST )
+import Data.STRef ( newSTRef, readSTRef, writeSTRef )
+import qualified Data.Vector.Unboxed.Mutable as V
+import Control.Monad (forM_)
 
-input = [11,0,1,10,5,19]
-initMap = IM.fromList $ zip input (map (:[]) [0..])
 
-main = print $ evalState run (initMap, last input, length input, 30000000) -- 30000000)
+main = print $ run (input, n) where
+    n = 30000000
+    input = [11,0,1,10,5,19]
+    -- input = [0,3,6]
 
--- (map from Numbers to its occurences, last spoke number, curr ndex, target index)
-type S = (IntMap [Int], Int, Int, Int)
+--     (initial numbers, target index) -> Result
+run :: ([Int], Int) -> Int
+run (ns,j) = runST $ do
+    let n_1 = last ns
+    let i = length ns
+    m <- V.replicate j (-1,-1)
+    forM_ (zip [0..] ns) (\(i,n) -> V.write m n (i,-1))
 
-run :: State S Int
-run = do
-    (m,n_1,i,j) <- get
-    let occurences = IM.findWithDefault [] n_1 m
-    let push i = Just . (:)i . take 1 . fromMaybe []
-    let s' = case length occurences of
-                1 -> (IM.alter (push i) 0 m, 0, i+1, j) -- speak 0
-                _ -> let d = foldr1 (-) occurences in (IM.alter (push i) d m, d, i+1, j) -- speak diff of occurences[0] occurences[1]
-    put s'
-    if i >= j then
-        return n_1
-    else
-        run
+    lastref <- newSTRef n_1
+
+    forM_ [i..j-1] $ \i -> do
+        last <- readSTRef lastref
+        occurences <- V.read m last
+        let push = V.modify m (\(a,b) -> (i,a))
+        let last' = case l occurences of
+                    1 -> 0
+                    _ -> d occurences
+        case last' of
+                0 -> push 0
+                _ -> push $ d occurences
+        writeSTRef lastref last'
+
+    readSTRef lastref
+
+    where   l (a,b) = sum $ map fromEnum [a /= -1, b /= -1]
+            d = uncurry (-)
