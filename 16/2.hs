@@ -3,9 +3,7 @@ import Data.List ((\\), isPrefixOf)
 import Common
     ( parse
     , Rule(..)
-    , ruleName
     , Ticket(..)
-    , ticketValues
     , ParseResult(..)
     )
 
@@ -23,13 +21,12 @@ run ParseResult{ rules=rs, yourTicket=(Ticket yt), nearbyTickets=ts } = product 
     inRule i (Rule _ (a,b) (c,d)) = i >= a && i <= b || i >= c && i <= d
 
 solveRules :: [[Rule]] -> [[Rule]]
-solveRules rs = let solved = solveRules' rs
+solveRules rs = let
+                solved = solve rs
+                solve rs = [
+                        foldr (flip (\\)) r [r' | (j,r') <- zip [0..]rs, j /= i && length r' == 1]
+                        | (i,r) <- zip [0..] rs
+                    ]
                 in  if ((==) `on` (length . concat)) solved rs
                         then rs
                         else solveRules solved
-
-solveRules' :: [[Rule]] -> [[Rule]]
-solveRules' rs = [
-            foldr (flip (\\)) r [r' | (j,r') <- zip [0..]rs, j /= i && length r' == 1]
-            | (i,r) <- zip [0..] rs
-        ]

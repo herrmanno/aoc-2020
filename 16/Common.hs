@@ -2,9 +2,7 @@ module Common
     ( parse
     , ParseResult(..)
     , Rule(..)
-    , ruleName
     , Ticket(..)
-    , ticketValues
     )
 where
 
@@ -12,16 +10,12 @@ import qualified Text.Parsec as P
 
 type Interval = (Int,Int)
 
-data Rule = Rule String Interval Interval deriving (Eq)
+data Rule = Rule { ruleName :: String, i1 ::  Interval, i2 :: Interval } deriving (Eq)
 
 instance Show Rule where
-    show (Rule name _ _) = name
+    show = ruleName
 
-ruleName (Rule name _ _) = name
-
-newtype Ticket = Ticket [Int] deriving (Show)
-
-ticketValues (Ticket t) = t
+newtype Ticket = Ticket { ticketValues :: [Int] } deriving (Show)
 
 data ParseResult = ParseResult
     { rules :: [Rule]
