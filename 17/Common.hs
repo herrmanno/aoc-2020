@@ -45,7 +45,7 @@ evolve :: PocketDimension -> PocketDimension
 evolve (PocketDimension cs) = PocketDimension (evolveCubes cs)
 
 evolveCubes :: Cubes -> Cubes 
-evolveCubes xs = foldr go xs (nub $ concatMap neighbours $ M.keys xs) where
+evolveCubes xs = foldr go xs (nub $ concatMap neighbours $ filter (xs M.!) $ M.keys xs) where
     go k m = let
         c = M.findWithDefault False k xs
         activeNeighbours = sum $ map (fromEnum . fromMaybe False . (M.!?) xs) $ neighbours k
