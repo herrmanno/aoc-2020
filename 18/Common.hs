@@ -1,14 +1,16 @@
-{-# LANGUAGE FlexibleContexts #-}
-
 module Common ( solve ) where
 
-import Text.Parsec ( (<|>) )
-import qualified Text.Parsec as P
+import Text.ParserCombinators.ReadP ( (<++) )
+import qualified Text.ParserCombinators.ReadP as P
+import Data.Maybe ( listToMaybe )
 
-solve f s = case P.parse (solveEquation f)  "" s of
-    Left err -> error $ show err
-    Right ex -> read ex
+solve :: (Show a) => ([String] -> a) -> String -> Maybe Int
+solve f = fmap (read . fst) . listToMaybe . P.readP_to_S (solveEquation f)
 
-solveEquation f = show . f . words . concat <$> P.many1 ( P.try ( parseEx f <|> parseS ) ) where
-    parseS = P.many1 ( P.noneOf "()" <|> P.space )
-    parseEx f = (P.char '(' *> solveEquation f) <* P.char ')'
+solveEquation :: Show a => ([String] -> a) -> P.ReadP String
+solveEquation f = solve <$> parseEquation where
+    solve = show . f. words
+    parseEquation = parseStr <++ parseBracket <++ P.string ""
+    parseStr = (++) <$> P.munch1 (not . (`elem` "()")) <*> parseEquation
+    parseBracket = (++) <$> P.between (P.char '(') (P.char ')') (solveEquation f) <*> parseEquation
+

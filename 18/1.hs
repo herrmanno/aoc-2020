@@ -1,7 +1,7 @@
 import Text.Parsec as P
 import Common ( solve )
 
-main = readFile "input.txt" >>= print . sum . map (solve calc) . lines
+main = readFile "input.txt" >>= print . fmap sum . mapM (solve calc) . lines
 
 calc :: [String] -> Int
 calc = calc' . reverse
